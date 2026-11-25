@@ -1,0 +1,297 @@
+{
+  "entities": {
+    "PlanoConfig": {
+      "title": "PlanoConfig",
+      "description": "Configuração pública somente leitura dos planos e limites mensais da plataforma.",
+      "type": "object",
+      "properties": {
+        "gratuito": { "type": "object" },
+        "atelie": { "type": "object" },
+        "mestre": { "type": "object" }
+      },
+      "required": ["gratuito", "atelie", "mestre"]
+    },
+    "Artesao": {
+      "title": "Artesao",
+      "description": "Dados privados, configurações de precificação e cota protegida do artesão.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "nomeAtelie": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "nomeResponsavel": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "email": { "type": "string", "format": "email", "maxLength": 120 },
+        "telefone": { "type": "string", "maxLength": 30 },
+        "cidadeUf": { "type": "string", "maxLength": 60 },
+        "especialidade": { "type": "string", "maxLength": 60 },
+        "bio": { "type": "string", "maxLength": 600 },
+        "slug": { "type": "string", "maxLength": 40, "pattern": "^$|^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "valorHoraPadrao": { "type": "number" },
+        "margemPadrao": { "type": "number" },
+        "taxaPlataformaPadrao": { "type": "number" },
+        "percentualIndiretoPadrao": { "type": "number" },
+        "plano": { "type": "string", "enum": ["gratuito", "atelie", "mestre"] },
+        "aceitandoPedidos": { "type": "boolean" },
+        "uso": { "type": "number" },
+        "mesReferencia": { "type": "string", "minLength": 7, "maxLength": 7, "pattern": "^[0-9]{4}-[0-9]{2}$" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "uid",
+        "nomeAtelie",
+        "nomeResponsavel",
+        "email",
+        "plano",
+        "aceitandoPedidos",
+        "uso",
+        "mesReferencia",
+        "criadoEm",
+        "atualizadoEm"
+      ]
+    },
+    "UsoMensal": {
+      "title": "UsoMensal",
+      "description": "Contagem mensal de pedidos recebidos (AAAA-MM no fuso America/Bahia), mantida exclusivamente pelo servidor.",
+      "type": "object",
+      "properties": {
+        "mes": { "type": "string", "minLength": 7, "maxLength": 7, "pattern": "^[0-9]{4}-[0-9]{2}$" },
+        "quantidade": { "type": "number" },
+        "limite": { "type": "number" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["mes", "quantidade", "atualizadoEm"]
+    },
+    "Pedido": {
+      "title": "Pedido",
+      "description": "Pedido sob medida criado via /api/criar-pedido e gerenciado pelo artesão no Kanban.",
+      "type": "object",
+      "properties": {
+        "uidArtesao": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "codigo": { "type": "string", "minLength": 4, "maxLength": 32 },
+        "clienteNome": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "clienteEmail": { "type": "string", "format": "email", "maxLength": 120 },
+        "clienteWhatsApp": { "type": "string", "maxLength": 30 },
+        "categoria": { "type": "string", "minLength": 2, "maxLength": 60 },
+        "titulo": { "type": "string", "minLength": 3, "maxLength": 120 },
+        "descricao": { "type": "string", "minLength": 10, "maxLength": 2000 },
+        "medidas": { "type": "string", "maxLength": 200 },
+        "orcamentoClienteDesejado": { "type": "number" },
+        "prazoDesejadoTexto": { "type": "string", "maxLength": 80 },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Novo",
+            "Em Orçamento",
+            "Aguardando Aprovação",
+            "Aprovado",
+            "Em Produção",
+            "Pronto",
+            "Entregue",
+            "Recusado",
+            "Cancelado"
+          ]
+        },
+        "consentimentoLgpd": { "type": "boolean" },
+        "consentimentoEm": { "type": "string", "format": "date-time" },
+        "consentimentoVersao": { "type": "string", "maxLength": 20 },
+        "prazoEstimadoDias": { "type": "number" },
+        "dataEntregaPrevista": { "type": "string", "maxLength": 20 },
+        "notasInternas": { "type": "string", "maxLength": 1000 },
+        "orcamentoAtual": { "type": "object" },
+        "totalImagens": { "type": "number" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" },
+        "encerradoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "uidArtesao",
+        "codigo",
+        "clienteNome",
+        "clienteEmail",
+        "categoria",
+        "titulo",
+        "descricao",
+        "status",
+        "consentimentoLgpd",
+        "consentimentoEm",
+        "consentimentoVersao",
+        "totalImagens",
+        "criadoEm",
+        "atualizadoEm"
+      ]
+    },
+    "ImagemPedido": {
+      "title": "ImagemPedido",
+      "description": "Imagem comprimida do pedido (base64, máx 1280px), gravada exclusivamente por /api/criar-pedido.",
+      "type": "object",
+      "properties": {
+        "nome": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "mimeType": { "type": "string", "enum": ["image/jpeg", "image/png", "image/webp"] },
+        "tamanhoBytes": { "type": "number" },
+        "dataBase64": { "type": "string", "maxLength": 750000 },
+        "criadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["nome", "mimeType", "tamanhoBytes", "dataBase64", "criadoEm"]
+    },
+    "OrcamentoVersao": {
+      "title": "OrcamentoVersao",
+      "description": "Versão imutável de orçamento vinculado a um pedido (RN07).",
+      "type": "object",
+      "properties": {
+        "versao": { "type": "number" },
+        "custoMateriais": { "type": "number" },
+        "horasTrabalho": { "type": "number" },
+        "valorHora": { "type": "number" },
+        "percentualIndireto": { "type": "number" },
+        "percentualMargem": { "type": "number" },
+        "percentualTaxa": { "type": "number" },
+        "descontoValor": { "type": "number" },
+        "valorTotal": { "type": "number" },
+        "sinalEntrada": { "type": "number" },
+        "lucroLiquidoEstimado": { "type": "number" },
+        "prazoEstimadoDias": { "type": "number" },
+        "validadeDias": { "type": "number" },
+        "observacoes": { "type": "string", "maxLength": 1000 },
+        "itensMateriais": { "type": "array" },
+        "criadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "versao",
+        "custoMateriais",
+        "horasTrabalho",
+        "valorHora",
+        "valorTotal",
+        "sinalEntrada",
+        "prazoEstimadoDias",
+        "validadeDias",
+        "itensMateriais",
+        "criadoEm"
+      ]
+    },
+    "HistoricoEvento": {
+      "title": "HistoricoEvento",
+      "description": "Trilha de auditoria append-only do pedido.",
+      "type": "object",
+      "properties": {
+        "tipo": { "type": "string", "enum": ["criacao", "status", "orcamento", "nota"] },
+        "descricao": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "autor": { "type": "string", "enum": ["cliente", "artesao", "sistema"] },
+        "criadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["tipo", "descricao", "autor", "criadoEm"]
+    },
+    "PerfilPublico": {
+      "title": "PerfilPublico",
+      "description": "Vitrine pública do artesão sem PII, exibida na rota /a/{slug}.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "slug": { "type": "string", "minLength": 3, "maxLength": 40, "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "nomeAtelie": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "especialidade": { "type": "string", "minLength": 2, "maxLength": 60 },
+        "cidadeUf": { "type": "string", "maxLength": 60 },
+        "bio": { "type": "string", "maxLength": 600 },
+        "prazoMedioDias": { "type": "number" },
+        "aceitandoPedidos": { "type": "boolean" },
+        "ativo": { "type": "boolean" },
+        "corDestaque": { "type": "string", "enum": ["#D065D6", "#94D665", "#728168", "#2D254E"] },
+        "categorias": { "type": "array" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "uid",
+        "slug",
+        "nomeAtelie",
+        "especialidade",
+        "prazoMedioDias",
+        "aceitandoPedidos",
+        "ativo",
+        "corDestaque",
+        "categorias",
+        "criadoEm",
+        "atualizadoEm"
+      ]
+    },
+    "ItemPortfolio": {
+      "title": "ItemPortfolio",
+      "description": "Peça de portfólio comprimida para exibição pública na página do artesão.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "titulo": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "categoria": { "type": "string", "minLength": 2, "maxLength": 40 },
+        "descricao": { "type": "string", "maxLength": 400 },
+        "tempoProducaoDias": { "type": "number" },
+        "precoReferencia": { "type": "number" },
+        "imagemBase64": { "type": "string", "maxLength": 750000 },
+        "ordem": { "type": "number" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "uid",
+        "titulo",
+        "categoria",
+        "tempoProducaoDias",
+        "precoReferencia",
+        "imagemBase64",
+        "ordem",
+        "criadoEm",
+        "atualizadoEm"
+      ]
+    },
+    "SlugReserva": {
+      "title": "SlugReserva",
+      "description": "Índice público de unicidade para URLs de artesãos (/a/{slug}).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "criadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "criadoEm"]
+    }
+  },
+  "firestore": {
+    "/config/planos": {
+      "schema": { "$ref": "#/entities/PlanoConfig" },
+      "description": "Configuração somente leitura dos limites por plano."
+    },
+    "/artesaos/{uid}": {
+      "schema": { "$ref": "#/entities/Artesao" },
+      "description": "Perfil privado e configurações do artesão."
+    },
+    "/artesaos/{uid}/uso/{mesId}": {
+      "schema": { "$ref": "#/entities/UsoMensal" },
+      "description": "Contagem mensal de pedidos recebidos."
+    },
+    "/artesaos/{uid}/pedidos/{pedidoId}": {
+      "schema": { "$ref": "#/entities/Pedido" },
+      "description": "Pedidos sob medida gerenciados no Kanban."
+    },
+    "/artesaos/{uid}/pedidos/{pedidoId}/imagens/{imagemId}": {
+      "schema": { "$ref": "#/entities/ImagemPedido" },
+      "description": "Imagens de referência comprimidas enviadas pelo cliente."
+    },
+    "/artesaos/{uid}/pedidos/{pedidoId}/orcamentos/{orcamentoId}": {
+      "schema": { "$ref": "#/entities/OrcamentoVersao" },
+      "description": "Histórico imutável de versões de orçamento (RN07)."
+    },
+    "/artesaos/{uid}/pedidos/{pedidoId}/historico/{eventoId}": {
+      "schema": { "$ref": "#/entities/HistoricoEvento" },
+      "description": "Eventos imutáveis do pedido (append-only)."
+    },
+    "/perfisPublicos/{uid}": {
+      "schema": { "$ref": "#/entities/PerfilPublico" },
+      "description": "Dados públicos do ateliê sem informações pessoais."
+    },
+    "/perfisPublicos/{uid}/portfolio/{itemId}": {
+      "schema": { "$ref": "#/entities/ItemPortfolio" },
+      "description": "Itens públicos de portfólio do artesão."
+    },
+    "/slugs/{slug}": {
+      "schema": { "$ref": "#/entities/SlugReserva" },
+      "description": "Registro único de slug para impedir sobrescrita."
+    }
+  }
+}
